@@ -1,0 +1,20 @@
+#Wireshark Packet Analyzer
+
+->This script utilizes the wireshark 'Export Packet Dissections --> As 'Plain Text' File' Feature.
+	->Script takes in  generated plain text file and passes it to a python script that 
+		-> manipulates it to create a file that contains variations of 
+			->ASCII, HEX, and PACKET HEADERS of sniffed packets. 
+
+->USAGE:
+        *Make Sure To Use ABSOLUTE PATH.*
+        USAGE: [SCRIPT_NAME] [OPTION] [PATH_TO_PYTHON_FILE] [PATH_TO_ASCII_FILE] [PATH_TO_OUTPUT_FILE]
+        OPTIONS: 
+                -r | --raw ).............Output file contains unsorted raw hex and ascii."
+                -rs | --raw-sorted)......Output file contains sorted raw hex and ascii."
+                -ao | --ascii-only)......Output file contains unsorted raw ascii only."
+                -as | --ascii-sorted)....Output file contains sorted raw ascii only."
+                -ho | --hex-only)........Output file contains unsorted raw hex only."
+                -hs | --hex-sorted)......Output file contains sorted hex only."
+                -ph | --packet-headers)..Output file contains unsorted packet headers only."
+                -ps | --headers-sorted)..Output file contains sorted packet headers."
+
