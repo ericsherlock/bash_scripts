@@ -58,7 +58,7 @@ if [ $# -eq 4 ]; then
 						;;
 			-rs | --raw-sorted)	python "$2" "$3" "$4"
 						sort "$4" > "$4_raw_sorted"
-						exit_func 0
+						execution_check "$?"
 						;;
 			-ao | --ascii-only)	python "$2" "$3" "$4"
 						cut -d " " -f 21 "$4" > "$4_ascii_only"
@@ -66,8 +66,8 @@ if [ $# -eq 4 ]; then
 						execution_check "$?"
 						;;
 			-as | --ascii-sorted)	python "$2" "$3" "$4"
-						cut -d " " -f 21 "$4" > "$4_ascii_only"
-						sort "$4_ascii_only" > "$4_ascii_sorted"
+						cut -d " " -f 21 "$4" > "$4_ascii_sorted"
+						sort "$4_ascii_sorted" -o "$4_ascii_sorted"
 						sed -i '/^\s*$/d' "$4_ascii_sorted"
 						execution_check "$?"
 						;;
@@ -76,8 +76,8 @@ if [ $# -eq 4 ]; then
 						execution_check "$?"	
 						;;
 			-hs | --hex-sorted)	python "$2" "$3" "$4"
-						cut -c 1-50 "$4" > "$4_hex_only"
-						sort "$4_hex_only" > "$4_hex_sorted"
+						cut -c 1-50 "$4" > "$4_hex_sorted"
+						sort "$4_hex_only" -o "$4_hex_sorted"
 						sed -i '/^\s*$/d' "$4_hex_sorted"
 						execution_check "$?"
 						;;
@@ -85,7 +85,7 @@ if [ $# -eq 4 ]; then
 						execution_check $?
 						;;
 			-ps | --headers-sorted)	python "$2" "$3" "$4_headers_only" 1
-						sort "$4_headers_only" > "$4_headers_sorted"
+						sort "$4_headers_only" -o "$4_headers_sorted"
 						sed -i '/^\s*$/d' "$4_headers_sorted"
 						execution_check $?
 						;;		
