@@ -6,15 +6,15 @@
 			->ASCII, HEX, and PACKET HEADERS of sniffed packets. 
 
 ->USAGE:
-        *Make Sure To Use ABSOLUTE PATH.*
-        USAGE: [SCRIPT_NAME] [OPTION] [PATH_TO_PYTHON_FILE] [PATH_TO_ASCII_FILE] [PATH_TO_OUTPUT_FILE]
-        OPTIONS: 
-                -r | --raw ).............Output file contains unsorted raw hex and ascii."
-                -rs | --raw-sorted)......Output file contains sorted raw hex and ascii."
-                -ao | --ascii-only)......Output file contains unsorted raw ascii only."
-                -as | --ascii-sorted)....Output file contains sorted raw ascii only."
-                -ho | --hex-only)........Output file contains unsorted raw hex only."
-                -hs | --hex-sorted)......Output file contains sorted hex only."
-                -ph | --packet-headers)..Output file contains unsorted packet headers only."
-                -ps | --headers-sorted)..Output file contains sorted packet headers."
-
+        echo "Usage: Make Sure To Use ABSOLUTE PATH."
+        echo "Usage: [SCRIPT_NAME] [OPTIONS] [PATH_TO_PYTHON_FILE] [PATH_TO_ASCII_FILE] [PATH_TO_OUTPUT_FILE]"
+        echo "Usage: All Options Specified Will Print To Output File Specified. "
+        echo "OPTIONS: "
+        echo "        -r)..unsorted raw hex and ascii."
+        echo "        -R)..sorted raw hex and ascii."
+        echo "        -a)..unsorted raw ascii only."
+        echo "        -A)..sorted raw ascii only."
+        echo "        -h)..unsorted raw hex only."
+        echo "        -H)..sorted hex only."
+        echo "        -p)..unsorted packet headers only."
+        echo "        -P)..sorted packet headers."
