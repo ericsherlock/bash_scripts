@@ -1,22 +1,19 @@
 #! /bin/bash
 
-#This script utilizes the wireshark "Export Packet Dissections --> As 'Plain Text' File" Feature.
-#Script Takes Generated Plain Text File and Manipulates It To Create A File That Contains
-#Variations of ASCII, HEX, and PACKET HEADERS of Sniffed Packets. 
-
 #Usage Method
 usage(){
 	echo "Usage: Make Sure To Use ABSOLUTE PATH."
 	echo "Usage: [SCRIPT_NAME] [OPTION] [PATH_TO_PYTHON_FILE] [PATH_TO_ASCII_FILE] [PATH_TO_OUTPUT_FILE]"
+	echo "Usage: All Options Specified Will Print To Output File Specified. "
 	echo "OPTIONS: "
-	echo "        -r | --raw ).............Output file contains unsorted raw hex and ascii."
-	echo "        -rs | --raw-sorted)......Output file contains sorted raw hex and ascii."
-	echo "        -ao | --ascii-only)......Output file contains unsorted raw ascii only."
-	echo "        -as | --ascii-sorted)....Output file contains sorted raw ascii only."
-	echo "        -ho | --hex-only)........Output file contains unsorted raw hex only."
-	echo "        -hs | --hex-sorted)......Output file contains sorted hex only."
-	echo "        -ph | --packet-headers)..Output file contains unsorted packet headers only."
-	echo "        -ps | --headers-sorted)..Output file contains sorted packet headers."
+	echo "        -r)..unsorted raw hex and ascii."
+	echo "        -R)..sorted raw hex and ascii."
+	echo "        -a)..unsorted raw ascii only."
+	echo "        -A)..sorted raw ascii only."
+	echo "        -h)..unsorted raw hex only."
+	echo "        -H)..sorted hex only."
+	echo "        -p)..unsorted packet headers only."
+	echo "        -P)..sorted packet headers."
 }
 
 #Exit Function Method
@@ -37,57 +34,95 @@ exit_func () {
 	fi
 }
 
+#Method That Checks Number Of Arguments To The Script
+check_args() {
+		
+	if [ "$#" -ne 4 ]; then
+		usage
+		exit_func 1
+	elif [ "$#" -eq 4 ]; then
+		return 0
+	fi
+}
+
 #Execution Check Makes Sure Last Command Executed Successfully
 execution_check () {
 
 	if [ "$1" -eq 0 ]; then
-		exit_func 0
+		echo "Success!"
+		return 0
 	elif [ "$1" -ne 0 ]; then
 		exit_func 2
 	fi
 }
 
+
+
 #If Loop Checks Number of Arguments
 if [ $# -eq 4 ]; then
 	#While There is an Option Available
-	while [ "$1" != "" ]; do
+	while getopts 'rRaAhHpP' opt; do
 		#Switch on Option
-		case $1 in
-			-r | --raw)		python "$2" "$3" "$4"
-						execution_check "$?"
+		case $opt in
+			r)			echo "RAW DATA: "
+						if [ "$(check_args)" ]; then
+							python "$2" "$3" "$4"
+							execution_check "$?"
+						fi
 						;;
-			-rs | --raw-sorted)	python "$2" "$3" "$4"
-						sort "$4" > "$4_raw_sorted"
-						execution_check "$?"
+			R)			echo "RAW DATA -> SORTED: "
+						if [ "$(check_args)" ]; then
+							python "$2" "$3" "$4"
+							sort "$4" > "$4_raw_sorted"
+							execution_check "$?"
+						fi
 						;;
-			-ao | --ascii-only)	python "$2" "$3" "$4"
-						cut -d " " -f 21 "$4" > "$4_ascii_only"
-						sed -i '/^\s*$/d' "$4_ascii_only"
-						execution_check "$?"
+			a)			echo "ASCII DATA ONLY: "
+						if [ "$(check_args)" ]; then
+							python "$2" "$3" "$4"
+							cut -d " " -f 21 "$4" > "$4_ascii_only"
+							sed -i '/^\s*$/d' "$4_ascii_only"
+							execution_check "$?"
+						fi
 						;;
-			-as | --ascii-sorted)	python "$2" "$3" "$4"
-						cut -d " " -f 21 "$4" > "$4_ascii_sorted"
-						sort "$4_ascii_sorted" -o "$4_ascii_sorted"
-						sed -i '/^\s*$/d' "$4_ascii_sorted"
-						execution_check "$?"
+			A)			echo "ASCII DATA -> SORTED: "
+						if [ "$(check_args)" ]; then
+							python "$2" "$3" "$4"
+							cut -d " " -f 21 "$4" > "$4_ascii_only"
+							sort "$4_ascii_only" > "$4_ascii_sorted"
+							sed -i '/^\s*$/d' "$4_ascii_sorted"
+							execution_check "$?"
+						fi
 						;;
-			-ho | --hex-only)	python "$2" "$3" "$4"
-						cut -c 1-50 "$4" > "$4_hex_only"
-						execution_check "$?"	
+			h)			echo "HEX DATA ONLY: "
+						if [ "$(check_args)" ]; then
+							python "$2" "$3" "$4"
+							cut -c 1-50 "$4" > "$4_hex_only"
+							execution_check "$?"
+						fi	
 						;;
-			-hs | --hex-sorted)	python "$2" "$3" "$4"
-						cut -c 1-50 "$4" > "$4_hex_sorted"
-						sort "$4_hex_only" -o "$4_hex_sorted"
-						sed -i '/^\s*$/d' "$4_hex_sorted"
-						execution_check "$?"
+			H)			echo "HEX DATA -> SORTED: "
+						if [ "$(check_args)" ]; then
+							python "$2" "$3" "$4"
+							cut -c 1-50 "$4" > "$4_hex_only"
+							sort "$4_hex_only" > "$4_hex_sorted"
+							sed -i '/^\s*$/d' "$4_hex_sorted"
+							execution_check "$?"
+						fi
 						;;
-			-ph |--packet-headers)	python "$2" "$3" "$4_headers_only" 1
-						execution_check $?
+			p)			echo "PACKET HEADERS ONLY: "
+						if [ "$(check_args)" ]; then
+							python "$2" "$3" "$4_headers_only" 1
+							execution_check "$?"
+						fi
 						;;
-			-ps | --headers-sorted)	python "$2" "$3" "$4_headers_only" 1
-						sort "$4_headers_only" -o "$4_headers_sorted"
-						sed -i '/^\s*$/d' "$4_headers_sorted"
-						execution_check $?
+			P)			echo "PACKET HEADERS -> SORTED"
+						if [ "$(check_args)" ]; then
+							python "$2" "$3" "$4_headers_only" 1
+							sort "$4_headers_only" > "$4_headers_sorted"
+							sed -i '/^\s*$/d' "$4_headers_sorted"
+							execution_check $?
+						fi
 						;;		
 			*)			usage
 						exit_func 3
