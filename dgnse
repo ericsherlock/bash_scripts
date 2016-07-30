@@ -1,0 +1,382 @@
+#! /bin/bash
+
+#This script will diagnose everything about a system
+#BIOS, CPU, Hard Disk, Firewall, Hardware, GPU, Interfaces, Packages, Memory, Motherbaord, OS, User
+
+#Usage Method
+usage() {
+	break_line
+	echo "Usage: ./script_name"
+	echo "Usage: ./script_name -[OPTION(S)]"
+	echo "Usage: To use more than 1 option, run flags together."
+	echo "Usage: ex. USE: ./diagnose -uodf"
+	echo "Usage: ex. NOT:  ./diagnose -u -o -d -f"
+	echo "OPTIONS: "
+	echo "		-b -> BIOS Information"
+	echo "		-c -> CPU Information"
+	echo "		-d -> Hard Disk Information"
+	echo "		-f -> Firewall Information"
+	echo "		-h -> Hardware Information"
+	echo "		-H -> Print Usage"
+	echo "		-g -> GPU Information"
+	echo "		-i -> Interface Information"
+	echo "		-k -> Package Information"
+	echo "		-m -> Memory Information"
+	echo "		-M -> Motherboard Information"
+	echo "		-o -> Operating System Information"
+	echo "		-u -> User Information"
+	echo "		-z -> All Above Options"
+	break_line
+}
+
+#Check If Last Command Executed Successfully
+execution_check() {
+
+	if [ "$1" -eq 0 ]; then
+		return 0
+	elif [ "$1" -ne 0 ]; then
+		usage
+		exit_func 2
+	fi
+
+}
+
+#Exit Function
+exit_func() {
+
+        if [ "$1" -eq 0 ]; then
+                echo "Exit 0 --> Success!"
+		exit 0
+        elif [ "$1" -eq 1 ]; then
+                echo "Exit 1 --> Wrong Number Of Arguments."
+		exit 1
+	elif [ "$1" -eq 2 ]; then
+		echo "Exit 2 --> Execution Error."
+                exit 2
+        fi
+} 
+
+#Break Line To Split Full Sections
+break_line() {
+	echo "_____________________________________________________________________________________________________________________"
+
+}
+
+#Section Divide To Divide Information Within Section
+section_divide(){
+	printf "\n"
+	echo "----------------------------------------------------------------------------------------------------"
+}
+
+#Intro To Print On Each Execution
+intro(){
+
+	#Print Starting Date and Time
+	break_line
+	echo "Welcome On: " $(hostname)
+	echo "Date/Time: " $(date)
+	echo "You're Logged On As: " $(whoami)
+	break_line
+}
+
+#Method To Print User Data
+user_data() {
+
+	#Print User Information
+	echo "USER INFORMATION: "
+	printf "\n"
+	echo "You're logged on as: " $(whoami)
+	echo "Last Login: " $(last -a | head -1 | cut -d " " -f14-21)
+	section_divide
+	echo "ALL USERS: " $(users)	
+	printf "\n"
+	echo "CURRENT LOGGED ON USERS: " 
+	w	
+	section_divide
+	echo "GROUP DATA: " 
+	printf "\n"
+	groups $(whoami)
+	printf "\n"
+	echo "PASSWD FILE ENTRY: "
+	printf "\n"
+	cat /etc/passwd | grep $(whoami)
+	break_line
+}
+
+#Method To Print Operating System Data
+os_data() {
+
+	#Print Operating system w/ version information
+        echo "OPERATING SYSTEM INFORMATION: "
+	printf "\n"
+        cat /etc/*-release
+        #Print Kernal Information
+        printf "\n"
+        echo "KERNAL DETAILS: " $(uname -smr)
+        #Print Bash Information
+        printf "\n"
+        echo "BASH INFORMATION: " $(bash --version)
+	break_line
+}
+
+#Method To Print Interface Data
+interface_data() {
+	
+	#Print Interface Information
+	echo "INTERFACE INFORMATION: "
+	printf "\n"
+        ifconfig -a
+	section_divide
+	netstat -i
+	printf "\n"
+	route
+	printf "\n"
+	ip route
+	section_divide
+	echo "CURRENT CONNCTIONS: : "
+	printf "\n"
+	ss -s
+	section_divide
+	echo "PORT INFORMATION: "
+	printf "\n"
+	nmap 127.0.0.1
+	section_divide
+	echo "INTERFACE PACKET INFORMATION: "
+	printf "\n"
+	cat /proc/net/dev
+	break_line
+
+}
+
+#Method To Print Hardware Data
+hardware_data() {
+
+	#Print All hardware
+	echo "HARDWARE DEVICES: "
+	printf "\n"
+	lshw -short
+	section_divide
+	echo "HARDWARE INFORMATION: "
+	printf "\n"
+	hwinfo --short
+	break_line
+}
+
+#Method To Print BIOS Data	
+bios_data() {
+
+	#Print BIOS Information
+	echo "BIOS INFORMATION: "
+	printf "\n"
+	dmidecode -t 0
+	dmidecode > $(pwd)/bios_hardware_info
+	echo "bios_hardware_info file with long bios information listing in working directory."
+	break_line
+
+}
+
+#Method To Print Hard Drive Data
+disk_data() {
+
+	#Print Hard Disk Information
+	echo "HARD DISK INFORMATION: "
+	printf "\n"
+	df -Hk
+	section_divide
+	echo "BLOCK DEVICES: "
+	printf "\n"
+	lsblk
+	section_divide
+	echo "PARTITION INFORMATION: "
+	printf "\n"
+	fdisk -l
+	break_line
+
+}
+
+#Method To Print Memory Data
+mem_data() {
+
+	#Print Memory Information
+	echo "MEMORY INFORMATION: "
+	printf "\n"
+	cat /proc/meminfo
+	section_divide
+	echo "SYSTEM MEMORY: "
+	printf "\n"
+	free
+	section_divide
+	echo "RAM DETAILS: "
+	printf "\n"
+	dmidecode -t 17 > $(pwd)/RAM_details
+	echo "RAM_details file now in your current working directory."
+	section_divide
+	echo "SWAP MEMORY DETAILS: "
+	printf "\n"
+	free -t -m | grep "Swap" | awk '{print "Total Swap Space: "$2 " MB";
+		print "Used Swap Space : "$3" MB";
+		print "Free Swap : "$4 " MB";	}'
+	section_divide
+	echo "LIST OF PROCESSES BASED ON MEMORY USAGE: "
+	printf "\n"
+	ps -e -orss=,args= | sort -b -k1,1n | tr "*" "\n" | tail -10 | sort -gr
+	break_line
+}
+
+#Method To Print CPU Data
+cpu_data() {
+	
+	#Print CPU Information
+	echo "CPU INFORMATION: "
+	printf "\n"
+	lscpu
+	cat /proc/cpuinfo > $(pwd)/cpu_information
+	echo "cpu_information file now in current working directory."
+	section_divide
+	echo "PROCESSOR INFORMATION: "
+	printf "\n"
+	echo "NUMBER OF PROCESSES: " $(nproc)
+	lshw -class processor
+	section_divide
+	echo "TOP PROCESSES: " 
+	printf "\n"
+	top -n 1
+	section_divide
+	echo " LIST OF PROCESSES BASED ON %CPU USAGE: "
+	printf "\n"
+	ps -e -o pcpu,cpu,nice,state,cputime,args --sort pcpu | tr "*" "\n" | tail -10 | sort -gr
+	break_line
+
+}
+
+#Method To Print GPU Data
+gpu_data() {
+
+	#Print GPU Information
+	echo "GPU INFORMATION: "
+	printf "\n"
+	lshw -short | grep -i --color display
+	printf "\n"
+	lspci -v | grep VGA
+	printf "\n"
+	lshw -numeric -C display
+	printf "\n"
+	glxinfo | grep OpenGL
+	break_line
+}
+
+#Method To Print Motherboard Information
+mobo_data() {
+		
+	#Print Motherboard Information
+	echo "MOTHEBOARD INFORMATION: "
+	printf "\n"
+	dmidecode | grep -A4 'Base B'
+	printf "\n"
+	dmidecode -t 1 | grep "Manufacturer\|Product Name\|Serial Number"
+	dmidecode -t 0 | grep "Vendor\|Version\|Release"
+	break_line
+
+}
+
+#Method That Puts List Of Installed Packages Into File 
+package_data(){
+
+	#Print package information
+	echo "CURRENT INSTALLED PACKAGES: "
+	printf "\n"
+	cat /etc/*-release | grep ID_LIKE | grep debian > /dev/null 2>&1
+	if [ "$?" -eq 0 ]; then
+		dpkg -l > $(pwd)/installed_packages
+		echo "installed_packages is now in your current working directory."
+	elif [ "$?" -eq 1 ]; then
+		rpm -qa > $(pwd)/installed_packages
+		echo "installed_packages is now in your current working directory."
+	fi
+	break_line
+}
+
+#Method To Print Firewall Configuration
+firewall_data(){
+
+	echo "FIREWALL CONFIGURATION: "
+	printf "\n"
+	iptables -L
+	break_line
+	
+}
+
+#If Loop To Check For Correct Number Of Arguments
+if [ $# -eq 0 ]; then
+
+	usage
+
+elif [ $# -eq 1 ]; then
+	#Print Intro
+	intro
+	#Switch On Arguments Given
+	while getopts 'bcdfhHgikmMopuz' opt; do
+		case $opt in
+			#Options for specific information
+			b )	bios_data
+				execution_check "$?"
+				;;
+			c )	cpu_data
+				execution_check "$?"
+				;;
+			d )	disk_data
+				execution_check "$?"
+				;;
+			f )	firewall_data
+				execution_check "$?"
+				;;
+			g )	gpu_data
+				execution_check "$?"
+				;;
+			h )	hardware_data
+				execution_check "$?"
+				;;
+			H )	usage
+				exit_func 0
+				;;
+			i )	interface_data
+				execution_check "$?"
+				;;
+			k )	package_data
+				execution_check "$?"
+				;;
+			m )	mem_data
+				execution_check "$?"
+				;;
+			M )	mobo_data
+				execution_check "$?"
+				;;
+			o )	os_data
+				execution_check "$?"
+				;;
+			u )	user_data
+				execution_check "$?"
+				;;
+			z )	user_data
+				os_data
+				firewall_data
+				interface_data
+				hardware_data
+				cpu_data
+				gpu_data
+				mobo_data
+				disk_data
+				mem_data
+				package_data
+				execution_check "$?"
+				;;
+			* ) 	usage
+				exit_func 1
+				;;
+		esac
+	done
+elif [ $# -gt 1 ]; then
+	#If More Than 1 Argument, Print Usage, Exit
+	usage
+	exit_func 1
+fi
