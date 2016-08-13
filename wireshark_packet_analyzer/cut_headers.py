@@ -4,7 +4,7 @@ import sys
 import fileinput
 
 #Lines containing these words will be deleted
-switch_words = ['No.', 'Frame', 'Ethernet', 'Data', 'Authentication', 'Discover', 'Protocol', 'Format', 'Logical', 'Key', 'Solicitation', 'Who', 'Report', 'Transaction', 'Standard', 'Destination', 'Secure', 'Request', 'Encrypted', 'Client', 'Domain', 'Server', 'TCP', 'ACK', 'Segments', 'ARP', 'HTTP', 'Certificate', 'QUIC', 'Bootstrap', 'Data', 'Control', 'EAPOL', 'Application', 'User', 'Datagram', 'Port', 'SYN', 'data', 'text']
+switch_words = ['No.', 'MP4', 'Frame', 'WebSocket', 'segment', 'Change', 'Media', 'Ethernet', 'Data', 'Authentication', 'Discover', 'Protocol', 'Format', 'Logical', 'Key', 'Solicitation', 'Who', 'Report', 'Transaction', 'Standard', 'Destination', 'Secure', 'Request', 'Encrypted', 'Client', 'Domain', 'Server', 'TCP', 'ACK', 'Segments', 'ARP', 'HTTP', 'Certificate', 'QUIC', 'Bootstrap', 'Data', 'Control', 'EAPOL', 'Application', 'User', 'Datagram', 'Port', 'SYN', 'data', 'text', 'Response', 'Alert', 'Version', '(factory', 'No-Operation', 'on', 'algorithmIdentifier', 'ALPN', 'at', 'by', 'catch', 'byName:', '(common']
 
 #If These Words Are In a Line, Next Line Will Be Newline
 newline_words = ['Data', 'Logical-Link', 'Authentication', 'request', 'v6', 'v4']
