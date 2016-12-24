@@ -1,24 +1,14 @@
-#! /bin/bash
+# /bin/bash
 
 #This Script Sets Up VPN and SSH connection back to home machines
 
-#Usage Method
+#Usage Information
 usage() {
 	echo "Usage: [PROGRAM_NAME] [OPTION]"
-	echo "Usage: OPTIONS: [ -h | --home ] [ -k | --kvm ]"
+	echo "Usage: OPTIONS: [ -h | --your_home ] [ -f | --other_host ]"
 }
 
-check_args () {
-	
-	if [ "$#" != 1 ]; then
-		usage
-		exit_func 1
-	elif [ "$#" == 1 ]; then
-		return 0
-	fi
-}
-
-#Exit Script Function
+#Exit Function
 exit_func () {
 
         if [ $1 == 1 ]; then
@@ -36,28 +26,29 @@ exit_func () {
         fi
 }
 
-#Method to establish vpn connection
+#Method To Open Connection
 establish_connection () {
 
-	gnome-terminal -e "openvpn --config /root/Documents/rictopVPN/rictop.ovpn"
+	#Open Terminal and OpenVPN Into 
+	gnome-terminal -e "openvpn --config /path/to/your/.ovpn/file"
 
-	#If Loop to Check Connection Status
+	#Check If Connection Was Successful
 	if [ !"$(check_connection)" ]; then
+		echo "Connection Status --> Failure."
 		usage
 		exit_func 2
-	elif [ "$(check_connection)" ]; then 
+	elif [ "$(check_connection)" ]; then
+		echo "Connection Status --> Success!"
 		return 0
 	fi
 }
 
-#Check Connection Method Tests Connection status
+#Check Connection Pings A Host I Know To Be On Network To Check If I Am On VPN
 check_connection () {		
 	
-	#Testing if I Can Ping To A Computer I Know To Be UP and On My Network
-	#Returns Exit Status of Ping Command
 	for i in 1 2
 	do
-		ping -c3 123.456.7.890
+		ping -c3 "IP on Your Network"
 		res=$?
 
 		if [ $res == 0 ]; then 
@@ -68,21 +59,21 @@ check_connection () {
 	done
 }
 
-#Break Connection Method To Kill All openvpn Processes
+#Kills All OpenVPN Connections
 break_connection () {
 
 	killall openvpn
 	return 0
 }
 
-#If There Are Enough Arguments
-if [ "$(check_args)" ]; then
-	#While There Are Command Line Arguments
+#If Number Of Arguments Is Correct
+if [ $# -eq 1 ]; then
 	while [ "$1" != "" ]; do
-		#Switch On Option Argument
+		#Check On The Arguments Passed In
 		case $1 in
-			-h | --home )	if [ "$(establish_connection)" ]; then
-							ssh eric@home
+			#Based On Argument, Connect To VPN, Else Print Usage And Exit
+			-h | --your_home )	if [ "$(establish_connection)" ]; then
+							ssh user@your_home
 							break_connection
 							exit_func 0
 						elif [ !"$(establish_connection)" ]; then
@@ -91,8 +82,8 @@ if [ "$(check_args)" ]; then
 						fi
 						;;
 
-			-vm | --kvm ) 	if [ "$(establish_connection)" ]; then
-							ssh root@kvm
+			-f | --other_user ) 	if [ "$(establish_connection)" ]; then
+							ssh user@other_user
 							break_connection
 							exit_func 0
 						elif [ !"$(establish_connection)" ]; then
@@ -100,9 +91,31 @@ if [ "$(check_args)" ]; then
 							exit_func 2
 						fi
 						;;
-
+			-ff | --other-files )	if [ "$(establish_connection)" ]; then
+							sftp user@other_user
+							break_connection
+							exit_func 0
+						elif [ !"$(establish_connection)" ]; then
+							usage
+							exit_func 2
+						fi
+						;;
+			-hf | --home-files )	if [ "$(establish_connection)" ]; then
+							sftp user@your_home
+							break_connection
+							exit_func 0
+						elif [ "$(establish_connection)" ]; then
+							usage
+							exit_func 2
+						fi
+						;;
 			* )			usage
 						exit_func 2
 		esac
 	done
+
+else
+
+	usage
+	exit_func 1
 fi
