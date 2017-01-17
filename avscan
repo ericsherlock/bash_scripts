@@ -1,0 +1,51 @@
+#! /bin/bash
+
+#Usage Message
+usage () {
+	echo "Usage: [PROGRAM_NAME]"	
+}
+
+#Exit Function
+exit_func () {
+	
+	if [ "$1" -eq 3 ]; then
+		echo "Exit 3 --> Wrong Number of Arguments."
+		exit 1
+	elif [ "$1" -eq 0 ]; then
+		echo "Exit 0 --> Success!"
+		exit 0
+	elif [ "$1" -eq 1 ]; then
+		echo "Exit 1 --> There Were Infected Files"
+		exit 1
+	elif [ "$1" -eq 2 ]; then
+		echo "Exit 2 --> Error Performing AV Scan"
+		exit 2
+	fi
+}
+
+#If Number of Arguments Is Correct
+if [ "$#" -eq 0 ]; then
+
+	#Using ClamAV To Conduct Antivirus Scan, Save Scan Results as "date"avscan.txt
+	#Options: -r: recursively scan directories and subdirectories, -o: Do not print OK on each file
+	clamscan -r -o --log=/save/results/here/by_date/`date +%F`avscan.txt /path/to/files/to/scan > /dev/null 2>&1
+	
+	#ClamAV Result Codes: 0-->No Virus Found, 1-->Virus Detected, 2-->Error Occured
+	result=$?
+
+	#If Scan Returns Value Other Than 0, Email SysAdmin About Possible Infected Files
+	#Using This Script Assumes You Have Already Set Up Sendmail/Postfix 
+	if [ $result -eq 1 ]; then
+		echo "There were infected files detected on your system. " | mail -s "Warning: Infected Files" your_email@email.com
+		exit_func 1
+	elif [ $result -eq 0 ]; then
+		exit_func 0
+	elif [ $result -eq 2 ]; then
+		exit_func 2
+	fi
+else
+	#If Arguments Are Incorrect, Print Usage and Exit
+	usage
+	exit_func 3
+	
+fi		
