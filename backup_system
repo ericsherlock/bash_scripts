@@ -41,7 +41,7 @@ if [ "$#" -eq 0 ]; then
 	#If Hard-Disk Is Already Mounted, Backup Data, Unmount, Exit
 	#Else, Pring Usage, Exit
 	if [ $result -eq 2 ]; then
-		sshfs user@"your_ip_address":/data1 /data1
+		sshfs user@"your_ip_address":/disk_name /disk_name
 		backup
 		umount /hard_disk
                 exit_func 0
