@@ -12,4 +12,6 @@ Collection of bash shell scripts. Currently Includes:
 
 -->Encryption Script : Encrypts/Decrypts files/directories with password protection. Uses 'gpg' command with 256-bit encryption. Also uses 'shred' command to delete unencrypted version of files/directories left behind. 
 
---> VPN/SSH Connection : This script uses OpenVPN and SSH/SFTP to securely and easily tunnel into a different computer.  
+--> VPN/SSH Connection : This script uses OpenVPN and SSH/SFTP to securely and easily tunnel into a different computer. 
+
+--> Anonymous Browser : Uses Proxychains to route web traffic through 5 different high-anonymity proxies in other countries.  
