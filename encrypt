@@ -1,21 +1,16 @@
 #! /bin/bash
 
-#This Script Encrypts/Decrypts With Password Protection a Single File or Directory. 
-#-->Once File or Folder is Encrypted, script Uses 'shred' Commmand To Delete Unencrypted Version Left Behind by 'gpg'.
-#-->If You Encrypt Using This Script, Must Also Decrypt With This Script.
-#-->Can Recursivly Enccrypt Directories and Subdirectories.
-#-->Script Uses 'gpg' with 256-bit Encryption.
-
-#Usage Method
 usage() {
-        echo "Usage: [PROGRAM_NAME] [OPTION] [FILENAME]"
-	echo "Options: [ -f | --file ] [ -df | --decrypt-file] [ -d | --directory ] [ -dd | --decrypt-directory]"
+        printf "Usage: [PROGRAM_NAME] [OPTION] [FILE/DIRECTORY]\n"
+	printf "Options: [ -f | --file ] [ -df | --decrypt-file] [ -d | --directory ] [ -dd | --decrypt-directory]\n"
 }
 
-#Method To Check Number Of Arguments
 check_args() {
 
 	if [ "$#" -ne 2 ]; then
+		usage
+		exit_func 1
+	elif [ "$#" -eq 1 ]; then
 		usage
 		exit_func 1
 	elif [ "$#" -eq 2 ]; then
@@ -23,51 +18,67 @@ check_args() {
 	fi
 }
 
-#Exit Script Function
 exit_func () {
 	if [ "$1" -eq 1 ]; then
-		echo "Exit 1 --> Wrong Number of Arguments."
+		printf "Exit 1 --> Wrong Number of Arguments.\n"
+		usage
 		exit 1
+	elif [ "$1" -eq 2 ]; then 
+		printf "File or Directory Arguments Were Incorrect.\n"
+		usage
+		exit 2
 	elif [ "$1" -eq 0 ]; then
-		echo "Exit 0 --> Success!"
+		printf "Exit 0 --> Success!\n"
 		exit 0
 	fi
 }
 
-#While There Are Arguments To The Script
-while [ "$1" != "" ]; do
-	#Switch On Option Argument
-	case $1 in
-		-f | --file )		    if [ "$(check_args)" ]; then
-						    gpg -c --cipher-algo AES256 $2
-                                        	    shred -u -n $(shuf -i 3-10 -n 1) $2
-                                            	    exit_func 0
-					    fi
-					    ;;
+if [ "$(check_args)" ]; then
+	while [ "$1" != "" ]; do
+			case $1 in
+				-f | --file )		    if [ -f $2 ]; then
+								gpg -c --cipher-algo AES256 $2
+                                        			shred -u -n $(shuf -i 3-10 -n 1) $2
+                                        		 	exit_func 0
+							    else
+								printf "%s is not a file.\n" $2
+								exit_func 2
+							    fi
+							    ;;
 
-		-df | --decrypt-file )	    if [ "$(check_args)" ]; then
-                                                    gpg $2
-						    shred -u -n $(shuf -i 3-10 -n 1) $2
-						    exit_func 0
-                                            fi
-					    ;;
+				-df | --decrypt-file )	    if [ -f $2 ]; then
+                	                	                gpg $2
+								shred -u -n $(shuf -i 3-10 -n 1) $2
+								exit_func 0
+							    else
+								printf "%s is not a file.\n" $2
+								exit_func 2
+        		                                    fi
+							    ;;
 
-		-d | --directory )	    if [ "$(check_args)" ]; then
-                                                    tar zcf - $2 | gpg -c --cipher-algo AES256 -o "$2.tar.gpg"
-						    find $2 -type f | xargs shred -u -n $(shuf -i 3-10 -n 1)
-						    rm -rf $2
-						    exit_func 0
-                                            fi
-					    ;;
+				-d | --directory )	    if [ -d $2 ]; then
+                	                                    	tar zcf "$2.tar" "$2"
+								gpg -c --cipher-algo AES256 "$2.tar"
+								shred -u -n $(shuf -i 3-10 -n 1) "$2.tar"
+								rm -rf $2
+								exit_func 0
+							    else
+								printf "%s is not a directory.\n" $2
+								exit_func 2
+        	                        	            fi
+							    ;;
 
-		-dd | --decrypt-directory ) if [ "$(check_args)" ]; then
-                                                    gpg -o- $2 | tar zxvf -
-						    shred -u -n $(shuf -i 3-10 -n 1) $2
-						    exit_func 0
-                                            fi  
-				            ;;
-
-		* ) 			    usage
-                                            exit_func 1
-	esac
-done
+				-dd | --decrypt-directory ) if [ -f $2 ]; then
+                	                                 	gpg -o- $2 | tar zxvf -
+								shred -u -n $(shuf -i 3-10 -n 1) $2
+								exit_func 0
+							    else
+								printf "%s is not a directory.\n" $2
+								exit_func 2
+							    fi  
+						            ;;
+	
+				* ) 			    exit_func 1
+			esac
+	done
+fi
