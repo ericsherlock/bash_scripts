@@ -57,9 +57,10 @@ if [ "$(check_args)" ]; then
 							    ;;
 
 				-d | --directory )	    if [ -d $2 ]; then
-                	                                    	tar zcf "$2.tar" "$2"
-								gpg -c --cipher-algo AES256 "$2.tar"
-								shred -u -n $(shuf -i 3-10 -n 1) "$2.tar"
+								name=${2%/}
+								tar -cvf "$name".tar "$2"
+								gpg -c --cipher-algo AES256 "$name.tar"
+								shred -u -n $(shuf -i 3-10 -n 1) "$name.tar"
 								rm -rf $2
 								exit_func 0
 							    else
@@ -69,7 +70,7 @@ if [ "$(check_args)" ]; then
 							    ;;
 
 				-dd | --decrypt-directory ) if [ -f $2 ]; then
-                	                                 	gpg -o- $2 | tar zxvf -
+                	                                 	gpg -o- $2 | tar xvf -
 								shred -u -n $(shuf -i 3-10 -n 1) $2
 								exit_func 0
 							    else
