@@ -18,6 +18,20 @@ check_args() {
 	fi
 }
 
+execution_check() {
+
+        if [ "$1" -eq 0 ]; then
+                return 0
+        elif [ "$1" -eq 1 ]; then
+                echo "Error Executiong 'shred' Command."
+                exit_func 3
+	elif [ "$1" -eq 2 ]; then
+		echo "Error Executing 'gpg' Command."
+		exit_func 3
+        fi
+
+}
+
 exit_func () {
 	if [ "$1" -eq 1 ]; then
 		printf "Exit 1 --> Wrong Number of Arguments.\n"
@@ -27,6 +41,9 @@ exit_func () {
 		printf "File or Directory Arguments Were Incorrect.\n"
 		usage
 		exit 2
+	elif [ "$1" -eq 3 ]; then
+		usage
+		exit 3
 	elif [ "$1" -eq 0 ]; then
 		printf "Exit 0 --> Success!\n"
 		exit 0
@@ -38,7 +55,9 @@ if [ "$(check_args)" ]; then
 			case $1 in
 				-f | --file )		    if [ -f $2 ]; then
 								gpg -c --cipher-algo AES256 $2
+								execution_check "$?"
                                         			shred -u -n $(shuf -i 3-10 -n 1) $2
+								execution_check "$?"
                                         		 	exit_func 0
 							    else
 								printf "%s is not a file.\n" $2
@@ -48,7 +67,9 @@ if [ "$(check_args)" ]; then
 
 				-df | --decrypt-file )	    if [ -f $2 ]; then
                 	                	                gpg $2
+								execution_check "$?"
 								shred -u -n $(shuf -i 3-10 -n 1) $2
+								execution_check "$?"
 								exit_func 0
 							    else
 								printf "%s is not a file.\n" $2
@@ -60,7 +81,9 @@ if [ "$(check_args)" ]; then
 								name=${2%/}
 								tar -cvf "$name".tar "$2"
 								gpg -c --cipher-algo AES256 "$name.tar"
+								execution_check "$?"
 								shred -u -n $(shuf -i 3-10 -n 1) "$name.tar"
+								execution_check "$?"
 								rm -rf $2
 								exit_func 0
 							    else
@@ -71,7 +94,9 @@ if [ "$(check_args)" ]; then
 
 				-dd | --decrypt-directory ) if [ -f $2 ]; then
                 	                                 	gpg -o- $2 | tar xvf -
+								execution_check "$?"
 								shred -u -n $(shuf -i 3-10 -n 1) $2
+								execution_check "$?"
 								exit_func 0
 							    else
 								printf "%s is not a directory.\n" $2
