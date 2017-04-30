@@ -1,0 +1,95 @@
+#! /bin/bash
+
+#Usage Function
+usage() {
+        echo "Usage: [PROGRAM_NAME] [OPTION]"
+	echo "Usage: Options: [ -e | Backup Entire System]"
+	echo "Usage: Options: [ -r | Backup Entire Remote System]"
+}
+
+#Exit Function
+exit_func() {
+        if [ "$1" -eq 0 ]; then
+                echo "Exit 1 --> Success!"
+                exit 0
+        elif [ "$1" -eq 1 ]; then
+                echo "Exit 1 --> Wrong Number of Arguments."
+                exit 1
+	elif [ "$1" -eq 2 ]; then
+		echo "Exit 2 --> Not Connected To/Error Mounting Storage Media."
+		exit 2
+	elif [ "$1" -eq 3 ]; then
+		echo "Exit 3 --> Invalid Option."
+		exit 3
+	elif [ "$1" -eq 4 ]; then
+		echo "Exit 4 --> Error Backing Up System."
+		exit 4
+        fi
+}
+
+#Function That Actually Creates The Backup of The Files Of Your Choosing
+backup(){
+
+	path=$(pwd)
+	echo "Now Backing Up System..."
+	echo "Please Wait (This May Take a While).."
+	tar -cpf /path/to/save/location/`date +%F`.tar /* > /dev/null 2>&1 
+	execution_check "$?"
+}
+
+remote_backup(){
+
+        #Check If Outside Hard-Disk Is Mounted By Checking If You Can List Directory On Remote System, Save Error Result
+        ls /path/to/files/on/remote/system/ > /dev/null 2>&1
+        result=$?
+
+        #If Hard-Disk Is Not Mounted, Mount/SSHFS To Host, Backup Data, Unmount, Exit
+        #If Hard-Disk Is Already Mounted, Backup Data, Unmount, Exit
+        #Else, Pring Usage, Exit
+        if [ $result -eq 2 ]; then
+                sshfs root@"remote IP":/remote/mount/point /local/mount/point
+                backup
+                umount /local/mount/point
+                exit_func 0
+        elif [ $result -eq 0 ]; then
+                backup
+                umount /local/mount/point
+                exit_func 0
+        else
+                usage
+                exit_func 2
+        fi
+
+}
+
+execution_check() {
+
+        if [ "$1" -eq 0 ]; then
+                return 0
+        elif [ "$1" -ne 0 ]; then
+                echo "Error With Tar Command Up System..."
+                exit_func 4
+        fi
+}
+
+#If Correct Number Of Arguments Run Program
+#Else Print Usage And Exit
+if [ "$#" -gt 0 ]; then
+	create_backup_directory
+	while getopts 'er' opt; do
+		case $opt in
+			e)	backup
+				exit_func 0
+				;;
+			r)	remote_backup
+				exit_func 0
+				;;
+			*)	usage
+				exit_func 1
+				;;
+		esac
+	done
+else
+	usage
+	exit_func 1
+fi
