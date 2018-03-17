@@ -2,8 +2,6 @@
 
 Collection of bash shell scripts. Currently Includes:
 
---> Anonymous Browser : Uses Proxychains to route web traffic through 5 different high-anonymity proxies in other countries.
-
 --> Antivirus scanner : Small script that uses ClamAV to conduct an antivirus scan and save the results to a file. If you have a preconfigured mail server, the script can also email you if there are infected files found on the system.
 
 --> Encryption Script : Encrypts/Decrypts files/directories with password protection. Uses 'gpg' command with 256-bit encryption. Also uses 'shred' command to delete unencrypted version of files/directories left behind.
