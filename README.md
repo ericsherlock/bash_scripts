@@ -1,6 +1,6 @@
 # bash_scripts
 
-Collection of bash shell scripts. Currently Includes:
+Collection of scripts. Currently Includes:
 
 --> Antivirus scanner : Small script that uses ClamAV to conduct an antivirus scan and save the results to a file. If you have a preconfigured mail server, the script can also email you if there are infected files found on the system.
 
@@ -14,4 +14,8 @@ Collection of bash shell scripts. Currently Includes:
 
 --> VPN/SSH Connection : This script uses OpenVPN and SSH/SFTP to securely and easily tunnel into a different computer.
 
+--> Math Game: Simple point based math game where the player answers addition, subtraction, multiplication, division, and mod operator questions that get more difficult the more points you earn. 
 
+--> Deterministic Finite Automaton : This is an implementation of a DFA using python
+
+--> Simple TCP/UDP network : This is a simple implementation of a TCP and UDP network written in C
