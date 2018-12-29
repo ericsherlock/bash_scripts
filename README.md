@@ -8,14 +8,8 @@ Collection of scripts. Currently Includes:
 
 --> Diagnose script : Uses linux built-ins to print out system information. Can print information for: BIOS, CPU, Hard Drive, Firewall, GPU, Interface, Memory, Motherboard, OS, User.
 
---> GBInfo : Get Browser Information is a script that when run will copy all browser files that may contain snesative information into a specific directory.  
-
 --> System Backup : This script is used to backup files to a particular remote hard drive.
 
 --> VPN/SSH Connection : This script uses OpenVPN and SSH/SFTP to securely and easily tunnel into a different computer.
 
---> Math Game: Simple point based math game where the player answers addition, subtraction, multiplication, division, and mod operator questions that get more difficult the more points you earn. 
-
 --> Deterministic Finite Automaton : This is an implementation of a DFA using python
-
---> Simple TCP/UDP network : This is a simple implementation of a TCP and UDP network written in C

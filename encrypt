@@ -1,10 +1,12 @@
 #! /bin/bash
 
+#Print Usage Information
 usage() {
         printf "Usage: [PROGRAM_NAME] [OPTION] [FILE/DIRECTORY]\n"
 	printf "Options: [ -f | --file ] [ -df | --decrypt-file] [ -d | --directory ] [ -dd | --decrypt-directory]\n"
 }
 
+#Check The Number Of Arguemtns
 check_args() {
 
 	if [ "$#" -ne 2 ]; then
@@ -18,6 +20,7 @@ check_args() {
 	fi
 }
 
+#Check That Each Of The main Commands Used Executed Correctly
 execution_check() {
 
         if [ "$1" -eq 0 ]; then
@@ -32,6 +35,7 @@ execution_check() {
 
 }
 
+#Print Exit Information
 exit_func () {
 	if [ "$1" -eq 1 ]; then
 		printf "Exit 1 --> Wrong Number of Arguments.\n"
@@ -50,34 +54,44 @@ exit_func () {
 	fi
 }
 
+#Main Program Loop
 if [ "$(check_args)" ]; then
+	#While There Are Arguments
 	while [ "$1" != "" ]; do
+			#Switch On The Arguments
 			case $1 in
+				#Encrypt A Single File
 				-f | --file )		    if [ -f $2 ]; then
+								#Use GPG To Encrypt, But Because GPG Leaves Behind An Unencrypted Version
+								#Use Shred Command To Get Rid Of Unencrypted Copy Left Behind
 								gpg -c --cipher-algo AES256 $2
 								execution_check "$?"
                                         			shred -u -n $(shuf -i 3-10 -n 1) $2
 								execution_check "$?"
                                         		 	exit_func 0
 							    else
+								#If Input Is Not A File, Print Error
 								printf "%s is not a file.\n" $2
 								exit_func 2
 							    fi
 							    ;;
-
+				#Decrypt A Single File
 				-df | --decrypt-file )	    if [ -f $2 ]; then
+								#Decrypt The Encrypted File and Get Rid of Encrypted File Left Behind
                 	                	                gpg $2
 								execution_check "$?"
 								shred -u -n $(shuf -i 3-10 -n 1) $2
 								execution_check "$?"
 								exit_func 0
 							    else
+								#If Input Is Not File, Print Error
 								printf "%s is not a file.\n" $2
 								exit_func 2
         		                                    fi
 							    ;;
-
+				#Encrypt A Directory
 				-d | --directory )	    if [ -d $2 ]; then
+								#Tar The Directory, Then Use GPG To Encrypt Tar File and Shred to Remove Leftover File
 								name=${2%/}
 								tar -cvf "$name".tar "$2"
 								gpg -c --cipher-algo AES256 "$name.tar"
@@ -87,18 +101,22 @@ if [ "$(check_args)" ]; then
 								rm -rf $2
 								exit_func 0
 							    else
+								#If Input Is Not A Directory, Print Error
 								printf "%s is not a directory.\n" $2
 								exit_func 2
         	                        	            fi
 							    ;;
-
+				#Decrypt A Directory
 				-dd | --decrypt-directory ) if [ -f $2 ]; then
+								#Decrypt Tar File And Extract Tar File
+								#Delete Any Encrypted Copies Left Behind
                 	                                 	gpg -o- $2 | tar xvf -
 								execution_check "$?"
 								shred -u -n $(shuf -i 3-10 -n 1) $2
 								execution_check "$?"
 								exit_func 0
 							    else
+								#If Input Is Not A Directory, Print Error
 								printf "%s is not a directory.\n" $2
 								exit_func 2
 							    fi  
